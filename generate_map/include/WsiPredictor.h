@@ -1,3 +1,4 @@
+#ifndef WSI_PREDICTOR_H_
 #define WSI_PREDICTOR_H_
 
 
@@ -9,6 +10,8 @@
 #include <vector>
 #include <math.h>
 #include <stdlib.h>
+#include <dlfcn.h>
+#include <map>
 
 #include <config4cpp/Configuration.h>
 #include <caffe/caffe.hpp>
@@ -32,6 +35,10 @@ using namespace std;
 // Each pixel in the prob. map indicates its prob. of belonging to tumor 
 // regions.
 //--------
+
+struct kfbslide_t;
+kfbslide_t* kfbslide_open(const char* filename);
+void kfbslide_close(kfbslide_t* osr);
 
 class WsiPredictor
 {
@@ -57,14 +64,29 @@ public:
     WsiPredictor(const char * cfg_file);
     ~WsiPredictor();
     
-	void predict(openslide_t * p_wsi);
+	void predict(openslide_t *  p_wsi);
+    void predict(kfbslide_t* p_wsi);
 
     void save_probmap(
                 std::string 	file_path,
-                double      	sample_rate = 1);    
+                double      	sample_rate = 1);  
+
+    void save_heatmap(
+        std::string             file_path,
+        double                  sample_rate = 1);
+ 
     
     static void _read_region_from_wsi(
                 openslide_t *   p_wsi,
+                cv::Mat &       result,                     
+                const int64_t   x,
+                const int64_t   y,
+                const int32_t   level,
+                const int64_t   w,
+                const int64_t   h);
+
+    static void kfb_read_region_from_wsi(
+                kfbslide_t *    p_wsi,
                 cv::Mat &       result,                     
                 const int64_t   x,
                 const int64_t   y,
@@ -98,14 +120,28 @@ private:
                 cv::Mat &       result,
                 const int64_t   width,
                 const int64_t   height);
+    void kfb_preprocessing(
+                kfbslide_t *    p_wsi,
+                cv::Mat &       result,
+                const int64_t   width,
+                const int64_t   height);
                 
     void _calculate_tile_nums(openslide_t * p_wsi);
+    void kfb_calculate_tile_nums(kfbslide_t *  p_wsi);
+
     void _tile_reader(
                 openslide_t *                                       p_wsi,
+                moodycamel::BlockingConcurrentQueue<QueueItem *> *  queue);
+    void kfb_tile_reader(
+                kfbslide_t *                                        p_wsi,
                 moodycamel::BlockingConcurrentQueue<QueueItem *> *  queue);
                 
     void _tile_processor(
                 openslide_t *                                       p_wsi,
+                const int                                           gpu_id,
+                moodycamel::BlockingConcurrentQueue<QueueItem *> *  queue);
+    void kfb_tile_processor(
+                kfbslide_t *                                        p_wsi,
                 const int                                           gpu_id,
                 moodycamel::BlockingConcurrentQueue<QueueItem *> *  queue);
     

@@ -1,0 +1,11 @@
+.DS_Store
+*.pyc
+*.npy
+*.log
+*.swp
+*.jpg
+*.ipynb_checkpoints/
+*.ipynb
+test/*
+!test/.gitkeep
+*.caffemodel

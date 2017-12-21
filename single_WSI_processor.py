@@ -20,7 +20,6 @@ BACKGROUND = 0
 SELECTED = 1
 NORMAL = 2
 TUMOR = 3
-global logger
 
 class WSIProcessor(object):
     """The input data."""

@@ -17,7 +17,7 @@ class AllSlide(AbstractSlide):
     def __init__(self, filename):
         super(AllSlide, self).__init__()
         self.filename = filename
-	print filename
+	    print filename
         if filename.endswith('.svs'):
             self._osr = openslide.open_slide(filename)
         elif filename.endswith('.kfb'):

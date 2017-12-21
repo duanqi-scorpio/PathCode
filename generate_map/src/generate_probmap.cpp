@@ -43,25 +43,48 @@ int main(int argc, char ** argv)
     
     
     
-    const char        * config_file = "../../config/detect_config.cfg";
+    const char        * config_file = "/home/fengyifan/medical/pathology/SJPath-master/generate_map/config/detect_config.cfg";
     WsiPredictor        predictor = WsiPredictor(config_file); 
     
-    const char *filename = "/media/usbdata/pathology/SJTU_PROJ/Experiments2/split/test_files.txt";
+    // const char *filename = "/media/usbdata/pathology/SJTU_PROJ/Experiments2/split/test_files.txt";
+    // const char *filename = "/media/duanqi01/Elements/Path/ResultData/TestData/benign/test_files.txt";
+    const char *filename = "/home/fengyifan/medical/pathology/SJPath-master/test_files.txt";
     std::string wsi_filename;
     std::ifstream file(filename);
     
     struct timespec start, finish;
     double elapsed;
-    clock_gettime(CLOCK_MONOTONIC, &start);
-    std::string savefile = "/media/usbdata/pathology/SJTU_PROJ/Experiments2/test/probmap/";
+    clock_gettime(CLOCK_MONOTONIC, &start); 
+    // std::string savefile = "/media/usbdata/pathology/SJTU_PROJ/Experiments2/test/probmap/";
+    std::string savefile = "/media/fengyifan/16F8F177F8F15589/RJPathData/RJTestData/Result/";
     while (std::getline(file, wsi_filename))
     {
         ifstream f(wsi_filename);
+        std::string wsi_basename = boost::filesystem::basename(wsi_filename);
         CHECK(f.good()) << "File " << wsi_filename << " does not exist";
-        openslide_t *p_wsi = openslide_open(wsi_filename.c_str());
-        predictor.predict(p_wsi);
-        string save_dir = savefile + wsi_filename.substr(wsi_filename.find(".svs") - 4) + ".npy";
-        predictor.save_probmap(save_dir.c_str());
+        std::cout << wsi_filename << " is in processing..." << std::endl;
+        if(wsi_filename.find(".svs") < wsi_filename.length()) {
+            openslide_t *p_wsi = openslide_open(wsi_filename.c_str());
+            predictor.predict(p_wsi);
+            string save_dir = savefile + wsi_basename + ".npy";
+            predictor.save_probmap(save_dir.c_str());
+            string save_hpname = savefile + wsi_basename + ".png";
+            predictor.save_heatmap(save_hpname.c_str());
+            openslide_close(p_wsi);
+        }
+
+        if(wsi_filename.find(".kfb") < wsi_filename.length()) {
+            kfbslide_t *p_wsi = kfbslide_open(wsi_filename.c_str());
+            predictor.predict(p_wsi);
+            string save_dir = savefile + wsi_basename + ".npy";
+            predictor.save_probmap(save_dir.c_str());
+            string save_hpname = savefile + wsi_basename + ".png";
+            predictor.save_heatmap(save_hpname.c_str());
+            kfbslide_close(p_wsi);
+        }
+        
+        // kfbslide_t *p_wsi = kfbslide_open(wsi_filename.c_str());
+        
         //int level_count = openslide_get_level_count(p_wsi);
         //int64_t m_sz_wsi_height, m_sz_wsi_width;
         //int64_t width, height;
@@ -78,7 +101,9 @@ int main(int argc, char ** argv)
         //cout << m_sz_wsi_height << '\t' << m_sz_wsi_width << endl;
         //cout << height << '\t' << width << endl;
         //cout << m_sz_wsi_height << '\t' << m_sz_wsi_width << '\t' << height << '\t' << width << endl;
-        openslide_close(p_wsi);
+        // openslide_close(p_wsi);
+        // kfbslide_close(p_wsi);
+
     }
     clock_gettime(CLOCK_MONOTONIC, &finish);
     elapsed = (finish.tv_sec - start.tv_sec);
