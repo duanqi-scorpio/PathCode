@@ -47,9 +47,8 @@ orgnize all the dataset like the following (see config/SJPath.cfg for more detai
 ```
 .
 └── sjpath_dir              # root folder of the whole dataset
-    ├── normal_wsi_folder   # containing all the normal slides (normal_wsi_folder/*/*.svs)
-    ├── normal_anno_folder  # containing all the annotations for normal slides (normal_wsi_folder/*.mask)
-    ├── tumor_wsi_folder    # containing all the tumor slides (tumor_wsi_folder/*/*.svs)
+    ├── normal_wsi_folder   # containing all the normal slides (normal_wsi_folder/*/*.svs|kfb)
+    ├── tumor_wsi_folder    # containing all the tumor slides (tumor_wsi_folder/*/*.svs|kfb)
     └── tumor_anno_folder   # containing all the annotations for tumor slides (tumor_wsi_folder/*.mask)
 ```
 
