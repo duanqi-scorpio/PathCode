@@ -74,6 +74,16 @@ public:
     void save_heatmap(
         std::string             file_path,
         double                  sample_rate = 1);
+    
+    void save_thumbimage(
+        openslide_t*            p_wsi,
+        std::string             file_path,
+        double                  sample_rate = 1);
+
+    void save_thumbimage(
+        kfbslide_t*             p_wsi,
+        std::string             file_path,
+        double                  sample_rate = 1);
  
     
     static void _read_region_from_wsi(

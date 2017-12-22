@@ -425,14 +425,15 @@ def compute_img_mean(
     # calculate mean values
     blob = caffe.proto.caffe_pb2.BlobProto()
     try:
-        data = open(mean_file, 'rb').read()
-        blob.ParseFromString(data)
-        out = np.array(caffe.io.blobproto_to_array(blob))[0]
-        #print out.shape
         mean_values = np.mean(out, axis=(1, 2)).tolist()
         str_means = [str(k) for k in mean_values]
         str_means = ';'.join(str_means)
         logger.info('mean values: ' + str_means)
+        
+        data = open(mean_file, 'rb').read()
+        blob.ParseFromString(data)
+        out = np.array(caffe.io.blobproto_to_array(blob))[0]
+        #print out.shape
     except IOError as e:
         logger.error("computeMeanValueFromFile I/O error({0}): {1}".format(e.errno, e.strerror))
     except ValueError as e:

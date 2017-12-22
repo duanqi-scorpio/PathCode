@@ -40,23 +40,29 @@ int main(int argc, char ** argv)
     std::cout << elapsed << " seconds" << std::endl;
     openslide_close(p_wsi);
     */
-    
-    
-    
-    const char        * config_file = "/home/fengyifan/medical/pathology/SJPath-master/generate_map/config/detect_config.cfg";
-    WsiPredictor        predictor = WsiPredictor(config_file); 
-    
-    // const char *filename = "/media/usbdata/pathology/SJTU_PROJ/Experiments2/split/test_files.txt";
-    // const char *filename = "/media/duanqi01/Elements/Path/ResultData/TestData/benign/test_files.txt";
-    const char *filename = "/home/fengyifan/medical/pathology/SJPath-master/test_files.txt";
+    if(argc == 1){
+        std::cout << "Please input parameter filename."<<std::endl;
+        return 0;
+    }
+    std::ifstream param_file(argv[1]);
+    std::string config_file;
+    std::string test_filename;
+    std::string savepath;
+    std::getline(param_file, config_file);
+    std::getline(param_file, test_filename);
+    std::getline(param_file, savepath);
+    // const char        * config_file = "/home/duanqi01/Documents/SJPath-master/generate_map/config/detect_config.cfg";
+    WsiPredictor        predictor = WsiPredictor(config_file.c_str()); 
+
+    // const char *filename = "/home/duanqi01/Documents/SJPath-master/test_files.txt";
     std::string wsi_filename;
-    std::ifstream file(filename);
+    std::ifstream file(test_filename.c_str());
     
     struct timespec start, finish;
     double elapsed;
     clock_gettime(CLOCK_MONOTONIC, &start); 
     // std::string savefile = "/media/usbdata/pathology/SJTU_PROJ/Experiments2/test/probmap/";
-    std::string savefile = "/media/fengyifan/16F8F177F8F15589/RJPathData/RJTestData/Result/";
+    // = "/media/duanqi01/Elements/RJ/RJTestData/Result/";
     while (std::getline(file, wsi_filename))
     {
         ifstream f(wsi_filename);
@@ -66,20 +72,24 @@ int main(int argc, char ** argv)
         if(wsi_filename.find(".svs") < wsi_filename.length()) {
             openslide_t *p_wsi = openslide_open(wsi_filename.c_str());
             predictor.predict(p_wsi);
-            string save_dir = savefile + wsi_basename + ".npy";
+            string save_dir = savepath + wsi_basename + ".npy";
             predictor.save_probmap(save_dir.c_str());
-            string save_hpname = savefile + wsi_basename + ".png";
+            string save_hpname = savepath + wsi_basename + "_heatmap.png";
             predictor.save_heatmap(save_hpname.c_str());
+            string save_thumbname = savepath + wsi_basename + "_thumb.png";
+            predictor.save_thumbimage(p_wsi, save_thumbname);
             openslide_close(p_wsi);
         }
 
         if(wsi_filename.find(".kfb") < wsi_filename.length()) {
             kfbslide_t *p_wsi = kfbslide_open(wsi_filename.c_str());
             predictor.predict(p_wsi);
-            string save_dir = savefile + wsi_basename + ".npy";
+            string save_dir = savepath + wsi_basename + ".npy";
             predictor.save_probmap(save_dir.c_str());
-            string save_hpname = savefile + wsi_basename + ".png";
+            string save_hpname = savepath + wsi_basename + "_heatmap.png";
             predictor.save_heatmap(save_hpname.c_str());
+            string save_thumbname = savepath + wsi_basename + "_thumb.png";
+            predictor.save_thumbimage(p_wsi, save_thumbname);
             kfbslide_close(p_wsi);
         }
         

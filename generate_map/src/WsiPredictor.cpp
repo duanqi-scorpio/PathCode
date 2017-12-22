@@ -1082,6 +1082,30 @@ WsiPredictor::_preprocessing(
     imwrite( "thresh.jpg", result );
 }
 
+void
+WsiPredictor::save_thumbimage(openslide_t * p_wsi, std::string file_path, double sample_rate)
+{
+    CHECK(NULL != p_wsi)
+        << "Please pass in a valid OpenSlide object pointer.";
+    
+    int64_t i_width, i_height;
+    int level_id = openslide_get_level_count(p_wsi);
+    LOG(INFO) << "The level of the thumb image: " << level_id;
+    openslide_get_level_dimensions(p_wsi, level_id - 1, &i_width, &i_height);  
+    LOG(INFO) << "The size of the thumb image: " << i_width << " * " << i_height;
+    cv::Mat thumimg(i_height, i_width, CV_8UC3);
+    _read_region_from_wsi( p_wsi, 
+                           thumimg,
+                           0,
+                           0,
+                           level_id - 1, 
+                           i_width,
+                           i_height);
+    cv::Mat temp;
+    cv::cvtColor(thumimg, temp, CV_BGR2RGB);
+    imwrite(file_path.c_str(), temp);
+}
+
 void 
 WsiPredictor::kfb_preprocessing(
     kfbslide_t *        p_wsi,
@@ -1122,6 +1146,32 @@ WsiPredictor::kfb_preprocessing(
     cv::dilate(result, result, element, cv::Point(-1, -1));
     
     imwrite( "thresh.jpg", result );
+}
+
+void 
+WsiPredictor::save_thumbimage(
+        kfbslide_t*             p_wsi,
+        std::string             file_path,
+        double                  sample_rate)
+{
+    CHECK(NULL != p_wsi)
+        << "Please pass in a valid OpenSlide object pointer.";
+    
+    int64_t i_width, i_height;
+    int level_id = kfbslide_get_level_count(p_wsi);
+    kfbslide_get_level_dimensions(p_wsi, level_id - 1, &i_width, &i_height);  
+    LOG(INFO) << "The size of the thumb image: " << i_width << " * " << i_height;
+    cv::Mat thumimg(i_height, i_width, CV_8UC3);
+    kfb_read_region_from_wsi( p_wsi, 
+                           thumimg,
+                           0,
+                           0,
+                           level_id - 1, 
+                           i_width,
+                           i_height);
+    cv::Mat temp;
+    cv::cvtColor(thumimg, temp, CV_BGR2RGB);
+    imwrite(file_path.c_str(), temp);
 }
 
 
